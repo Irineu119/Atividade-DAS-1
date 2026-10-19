@@ -6,8 +6,8 @@ import br.com.sistemas.chamados.entity.Cliente;
 import br.com.sistemas.chamados.exception.RecursoNaoEncontradoException;
 import br.com.sistemas.chamados.exception.RegraNegocioException;
 import br.com.sistemas.chamados.repository.ClienteRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -30,14 +30,12 @@ public class ClienteService {
         return ClienteResponse.de(salvo);
     }
 
-    // Precisa de readOnly = true
-    @Transactional()
+    @Transactional(readOnly = true)
     public List<ClienteResponse> listar() {
         return repository.findAll().stream().map(ClienteResponse::de).toList();
     }
 
-    // Precisa de readOnly = true
-    @Transactional()
+    @Transactional(readOnly = true)
     public ClienteResponse buscar(Long id) {
         return ClienteResponse.de(buscarEntity(id));
     }
