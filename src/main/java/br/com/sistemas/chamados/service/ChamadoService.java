@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -46,8 +47,23 @@ public class ChamadoService {
     }
 
     @Transactional(readOnly = true)
-    public List<ChamadoResponse> listar() {
-        return repository.findAll().stream().map(ChamadoResponse::de).toList();
+    public List<ChamadoResponse> listar(StatusChamado status, Prioridade prioridade, Long clienteId) {
+        List<ChamadoResponse> todos = repository.findAll().stream().map(ChamadoResponse::de).toList();
+        List<ChamadoResponse> ret = new ArrayList<>();
+        for (ChamadoResponse c : todos) {
+            if (status != null && c.statusChamado() != status)
+                break;
+
+            if (prioridade != null && c.prioridade() != prioridade)
+                break;
+
+            if (clienteId != null && !c.cliente().equals(clienteId))
+                break;
+
+            ret.add(c);
+        }
+
+        return ret;
     }
 
     @Transactional(readOnly = true)

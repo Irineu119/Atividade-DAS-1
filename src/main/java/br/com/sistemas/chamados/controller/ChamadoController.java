@@ -2,6 +2,8 @@ package br.com.sistemas.chamados.controller;
 
 import br.com.sistemas.chamados.dto.ChamadoRequest;
 import br.com.sistemas.chamados.dto.ChamadoResponse;
+import br.com.sistemas.chamados.entity.Prioridade;
+import br.com.sistemas.chamados.entity.StatusChamado;
 import br.com.sistemas.chamados.service.ChamadoService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -27,8 +29,10 @@ public class ChamadoController {
     }
 
     @GetMapping
-    public List<ChamadoResponse> listar() {
-        return service.listar();
+    public List<ChamadoResponse> listar(@RequestParam(required = false) StatusChamado status,
+                                        @RequestParam(required = false) Prioridade prioridade,
+                                        @RequestParam(required = false) Long clienteId) {
+        return service.listar(status, prioridade, clienteId);
     }
 
     @GetMapping("/{id}")
