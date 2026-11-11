@@ -60,7 +60,7 @@ public class ClienteService {
 
     private Cliente buscarEntity(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Cliente" + id + "não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Cliente " + id + " não encontrado"));
     }
 
 }

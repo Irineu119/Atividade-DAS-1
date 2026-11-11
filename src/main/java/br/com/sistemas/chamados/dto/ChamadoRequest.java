@@ -16,10 +16,10 @@ public record ChamadoRequest(
         @Size(max = 2048, message = "Descrição deve ter no máximo 2048 caracteres")
         String descricao,
 
-        @NotBlank(message = "Cliente é obrigatório")
+        //@NotBlank(message = "Cliente é obrigatório")
         Long cliente,
 
-        @NotBlank(message = "Categoria é obrigatória")
+        //@NotBlank(message = "Categoria é obrigatória")
         Long categoria,
 
         Long tecnico,

@@ -10,8 +10,8 @@ public record ChamadoResponse(Long id, String titulo, String descricao, Long cli
                               LocalDateTime dataFechamento, Prioridade prioridade, StatusChamado statusChamado) {
 
     public static ChamadoResponse de(Chamado c) {
-        return new ChamadoResponse(c.getId(), c.getTitulo(), c.getDescricao(), c.getCliente().getId(), c.getCategoria().getId(), c.getTecnico().getId(),
-                                    c.getDataAbertura(), c.getDataFechamento(), c.getPrioridade(), c.getStatus());
+        return new ChamadoResponse(c.getId(), c.getTitulo(), c.getDescricao(), c.getCliente().getId(), c.getCategoria().getId(),
+                c.getTecnico() != null ? c.getTecnico().getId() : null, c.getDataAbertura(), c.getDataFechamento(), c.getPrioridade(), c.getStatus());
     }
 
 }
