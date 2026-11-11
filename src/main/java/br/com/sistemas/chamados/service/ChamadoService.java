@@ -4,6 +4,7 @@ import br.com.sistemas.chamados.entity.*;
 import br.com.sistemas.chamados.dto.ChamadoRequest;
 import br.com.sistemas.chamados.dto.ChamadoResponse;
 import br.com.sistemas.chamados.exception.RecursoNaoEncontradoException;
+import br.com.sistemas.chamados.exception.RegraNegocioException;
 import br.com.sistemas.chamados.repository.CategoriaRepository;
 import br.com.sistemas.chamados.repository.ChamadoRepository;
 import br.com.sistemas.chamados.repository.ClienteRepository;
@@ -33,6 +34,9 @@ public class ChamadoService {
 
     @Transactional
     public ChamadoResponse criar(ChamadoRequest dto) {
+        if (dto.titulo() == null)
+            throw new RegraNegocioException("Título é obrigatório");
+
         Cliente c = buscarEntity(dto.cliente(), clienteRepository, "Cliente");
         Categoria categoria = buscarEntity(dto.categoria(), categoriaRepository, "Categoria");
 
@@ -54,24 +58,62 @@ public class ChamadoService {
     @Transactional
     public ChamadoResponse atualizar(Long id, ChamadoRequest dto) {
         Chamado c = buscarEntity(id, repository, "Chamado");
+        if (c.getStatus() == StatusChamado.FECHADO)
+            throw new RegraNegocioException("Chamado fechado " + id + " não pode ser modificado");
+
         Cliente cliente = buscarEntity(dto.cliente(), clienteRepository, "Cliente");
         Categoria categoria = buscarEntity(dto.categoria(), categoriaRepository, "Categoria");
-        Tecnico tecnico = buscarEntity(dto.tecnico(), tecnicoRepository, "Técnico");
 
-        c.setTitulo(dto.titulo());
-        c.setDescricao(dto.descricao());
-        c.setCliente(cliente);
-        c.setCategoria(categoria);
-        c.setTecnico(tecnico);
-        c.setDataFechamento(dto.dataFechamento());
-        c.setPrioridade(dto.prioridade());
-        c.setStatus(dto.status());
+        if (dto.titulo() != null)
+            c.setTitulo(dto.titulo());
+
+        if (dto.descricao() != null)
+            c.setDescricao(dto.descricao());
+
+        if (cliente != null)
+            c.setCliente(cliente);
+
+        if (categoria != null)
+            c.setCategoria(categoria);
+
+        if (dto.prioridade() != null)
+            c.setPrioridade(dto.prioridade());
+
         return ChamadoResponse.de(c);
     }
 
     @Transactional
     public void excluir(Long id) {
         repository.delete(buscarEntity(id, repository, "Chamado"));
+    }
+
+    @Transactional
+    public ChamadoResponse atribuir(Long id, ChamadoRequest dto) {
+        Chamado c = buscarEntity(id, repository, "Chamado");
+        if (c.getStatus() == StatusChamado.FECHADO)
+            throw new RegraNegocioException("Chamado fechado " + id + " não pode ser modificado");
+
+        Tecnico tecnico = buscarEntity(dto.tecnico(), tecnicoRepository, "Técnico");
+        if (tecnico != null || dto.tecnico() == null)
+            c.setTecnico(tecnico);
+
+        return ChamadoResponse.de(c);
+    }
+
+    @Transactional
+    public ChamadoResponse status(Long id, ChamadoRequest dto) {
+        if (dto.status() == null)
+            throw new RegraNegocioException("Status é obrigatório");
+
+        Chamado c = buscarEntity(id, repository, "Chamado");
+        if (c.getStatus() == StatusChamado.FECHADO)
+            throw new RegraNegocioException("Chamado fechado " + id + " não pode ser modificado");
+
+        c.setStatus(dto.status());
+        if (c.getStatus() == StatusChamado.FECHADO)
+            c.setDataFechamento(LocalDateTime.now());
+
+        return ChamadoResponse.de(c);
     }
 
     private <E> E buscarEntity(Long id, JpaRepository<E, Long> repository, String nome) {

@@ -8,11 +8,11 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 public record ChamadoRequest(
-        @NotBlank(message = "Título é obrigatório")
+        //@NotBlank(message = "Título é obrigatório")
         @Size(max = 100, message = "Título deve ter no máximo 100 caracteres")
         String titulo,
 
-        @NotBlank(message = "Descrição é obrigatória")
+        //@NotBlank(message = "Descrição é obrigatória")
         @Size(max = 2048, message = "Descrição deve ter no máximo 2048 caracteres")
         String descricao,
 

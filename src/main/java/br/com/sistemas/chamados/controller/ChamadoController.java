@@ -47,4 +47,14 @@ public class ChamadoController {
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/{id}/atribuir")
+    public ChamadoResponse atribuir(@PathVariable Long id, @Valid @RequestBody ChamadoRequest dto) {
+        return service.atribuir(id, dto);
+    }
+
+    @PatchMapping("/{id}/status")
+    public ChamadoResponse status(@PathVariable Long id, @Valid @RequestBody ChamadoRequest dto) {
+        return service.status(id, dto);
+    }
+
 }
