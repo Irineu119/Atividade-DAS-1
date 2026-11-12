@@ -52,13 +52,13 @@ public class ChamadoService {
         List<ChamadoResponse> ret = new ArrayList<>();
         for (ChamadoResponse c : todos) {
             if (status != null && c.statusChamado() != status)
-                break;
+                continue;
 
             if (prioridade != null && c.prioridade() != prioridade)
-                break;
+                continue;
 
             if (clienteId != null && !c.cliente().equals(clienteId))
-                break;
+                continue;
 
             ret.add(c);
         }

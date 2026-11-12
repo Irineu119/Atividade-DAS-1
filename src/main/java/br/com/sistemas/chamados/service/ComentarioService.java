@@ -49,7 +49,7 @@ public class ComentarioService {
         List<ComentarioResponse> ret = new ArrayList<>();
         for (ComentarioResponse c : todos) {
             if (idChamado != null && !c.chamado().getId().equals(idChamado))
-                break;
+                continue;
 
             ret.add(c);
         }
