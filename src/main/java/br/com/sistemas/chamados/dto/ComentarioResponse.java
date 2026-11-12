@@ -6,10 +6,10 @@ import br.com.sistemas.chamados.entity.Comentario;
 
 import java.time.LocalDateTime;
 
-public record ComentarioResponse(Long id, String texto, LocalDateTime data, Cliente autor, Chamado chamado) {
+public record ComentarioResponse(Long id, String texto, LocalDateTime data, Long autor, Long chamado) {
 
     public static ComentarioResponse de(Comentario c) {
-        return new ComentarioResponse(c.getId(), c.getTexto(), c.getData(), c.getAutor(), c.getChamado());
+        return new ComentarioResponse(c.getId(), c.getTexto(), c.getData(), c.getAutor().getId(), c.getChamado().getId());
     }
 
 }

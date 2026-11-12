@@ -67,7 +67,7 @@ public class ChamadoController {
     }
 
     @PostMapping("/comentarios")
-    public ComentarioResponse criarComentario(@PathVariable Long id, @Valid @RequestBody ComentarioRequest dto) {
+    public ComentarioResponse criarComentario(@Valid @RequestBody ComentarioRequest dto) {
         return comentarioService.criar(dto);
     }
 

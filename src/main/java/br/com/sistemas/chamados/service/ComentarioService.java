@@ -48,7 +48,7 @@ public class ComentarioService {
         List<ComentarioResponse> todos = repository.findAll().stream().map(ComentarioResponse::de).toList();
         List<ComentarioResponse> ret = new ArrayList<>();
         for (ComentarioResponse c : todos) {
-            if (idChamado != null && !c.chamado().getId().equals(idChamado))
+            if (idChamado != null && !c.chamado().equals(idChamado))
                 continue;
 
             ret.add(c);
