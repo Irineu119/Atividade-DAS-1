@@ -2,9 +2,12 @@ package br.com.sistemas.chamados.controller;
 
 import br.com.sistemas.chamados.dto.ChamadoRequest;
 import br.com.sistemas.chamados.dto.ChamadoResponse;
+import br.com.sistemas.chamados.dto.ComentarioRequest;
+import br.com.sistemas.chamados.dto.ComentarioResponse;
 import br.com.sistemas.chamados.entity.Prioridade;
 import br.com.sistemas.chamados.entity.StatusChamado;
 import br.com.sistemas.chamados.service.ChamadoService;
+import br.com.sistemas.chamados.service.ComentarioService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,9 +20,11 @@ import java.util.List;
 public class ChamadoController {
 
     private final ChamadoService service;
+    private final ComentarioService comentarioService;
 
-    public ChamadoController(ChamadoService service) {
+    public ChamadoController(ChamadoService service, ComentarioService comentarioService) {
         this.service = service;
+        this.comentarioService = comentarioService;
     }
 
     @PostMapping
@@ -59,6 +64,16 @@ public class ChamadoController {
     @PatchMapping("/{id}/status")
     public ChamadoResponse status(@PathVariable Long id, @Valid @RequestBody ChamadoRequest dto) {
         return service.status(id, dto);
+    }
+
+    @PostMapping("/{id}/comentarios")
+    public ComentarioResponse criarComentario(@PathVariable Long id, @Valid @RequestBody ComentarioRequest dto) {
+        return comentarioService.criar(dto);
+    }
+
+    @GetMapping("/{id}/comentarios")
+    public List<ComentarioResponse> listarComentarios(@PathVariable Long id) {
+        return comentarioService.listar(id);
     }
 
 }
