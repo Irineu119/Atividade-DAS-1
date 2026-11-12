@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Central de Chamados</title>
+<style>
+:root{color-scheme:light dark;--bg:#eceff1;--sf:#fff;--sf2:#f5f7f8;--ink:#16222b;--mut:#5b6b77;--ln:#d3dbe0;--ac:#0b6b6b;--onac:#fff;--err:#b3261e;
+--p-BAIXA:#6f8a99;--p-MEDIA:#2b78bd;--p-ALTA:#cc7f00;--p-CRITICA:#c42f1c}
+@media(prefers-color-scheme:dark){:root{--bg:#0e1419;--sf:#17212a;--sf2:#1d2933;--ink:#e5ecf0;--mut:#92a3af;--ln:#2a3844;--ac:#43b8b2;--onac:#06201f;--err:#ff8a80;
+--p-BAIXA:#8ba6b4;--p-MEDIA:#5aa5e6;--p-ALTA:#f0a62b;--p-CRITICA:#ff6b57}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Segoe UI",system-ui,-apple-system,Roboto,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+header{background:var(--sf);border-bottom:1px solid var(--ln);display:flex;flex-wrap:wrap;gap:8px 28px;align-items:center;padding:10px 24px}
+header h1{font-size:18px;margin:0;font-weight:700;letter-spacing:-.01em}
+nav{display:flex;gap:4px;flex:1}
+nav button{background:none;border:0;padding:8px 12px;border-radius:6px;color:var(--mut);cursor:pointer;font-weight:600}
+nav button[aria-current=page]{background:var(--sf2);color:var(--ink);box-shadow:inset 0 -2px var(--ac)}
+main{padding:20px 24px;max-width:1500px;margin:auto}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px}
+.bar h2{margin:0;flex:1;font-size:20px}
+.bar input,.bar select,dialog input,dialog select,dialog textarea{background:var(--sf);border:1px solid var(--ln);border-radius:6px;padding:7px 10px}
+.bar .grow{flex:1;min-width:160px}
+.pri,.ghost{border-radius:6px;padding:8px 14px;font-weight:600;cursor:pointer;border:1px solid var(--ln);background:var(--sf)}
+.pri{background:var(--ac);border-color:var(--ac);color:var(--onac)}
+.sm{padding:4px 10px;font-weight:500}
+.danger{color:var(--err)}
+.board{display:grid;grid-template-columns:repeat(4,minmax(250px,1fr));gap:14px;overflow-x:auto;align-items:start;padding-bottom:8px}
+.col{background:var(--sf2);border:1px solid var(--ln);border-radius:8px;padding:10px;min-height:120px}
+.col h3{margin:0 0 10px;font-size:14px;display:flex;justify-content:space-between}
+.col h3 span{color:var(--mut);font-weight:400}
+.card{display:block;width:100%;text-align:left;background:var(--sf);border:1px solid var(--ln);border-left:5px solid var(--pc);border-radius:6px;padding:10px 12px;margin-bottom:8px;cursor:pointer}
+.card:hover{border-color:var(--pc)}
+.card b{display:block;margin-bottom:2px}
+.meta{color:var(--mut);font-size:13px}
+.tag{display:inline-block;font-size:12px;font-weight:700;color:var(--pc);border:1px solid var(--pc);border-radius:20px;padding:0 8px;margin-right:6px}
+.empty{color:var(--mut);font-size:13px;margin:6px 2px}
+.tbl{overflow-x:auto;background:var(--sf);border:1px solid var(--ln);border-radius:8px}
+table{border-collapse:collapse;width:100%}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--ln);vertical-align:top}
+th{font-size:13px;color:var(--mut);background:var(--sf2)}
+tr:last-child td{border-bottom:0}
+td.act{white-space:nowrap;text-align:right}
+td.act button{margin-left:6px}
+dialog{border:1px solid var(--ln);border-radius:10px;background:var(--sf);color:var(--ink);padding:0;width:min(520px,calc(100% - 24px))}
+dialog::backdrop{background:rgba(8,14,18,.55)}
+dialog.side{margin:0 0 0 auto;height:100%;max-height:100%;width:min(500px,100%);border-radius:0;border-width:0 0 0 1px}
+dialog>form,dialog>div{padding:20px}
+dialog h2{margin:0 0 14px;font-size:19px}
+label{display:block;margin-bottom:12px;font-weight:600;font-size:14px}
+label i{font-weight:400;color:var(--mut)}
+label input,label select,label textarea{display:block;width:100%;margin-top:4px;font-weight:400}
+.row{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.err{color:var(--err);margin:0 0 10px;font-size:14px}
+dl{display:grid;grid-template-columns:110px 1fr;gap:4px 10px;margin:14px 0}
+dt{color:var(--mut)}dd{margin:0}
+.desc{white-space:pre-wrap;background:var(--sf2);border-radius:6px;padding:10px 12px}
+.ctl{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+h3.sec{font-size:15px;margin:22px 0 8px}
+ul.com{list-style:none;padding:0;margin:0}
+ul.com li{border-top:1px solid var(--ln);padding:8px 0}
+ul.com p{margin:2px 0 0;white-space:pre-wrap}
+#toast{position:fixed;inset:auto auto 24px 50%;margin:0;transform:translateX(-50%);background:var(--ink);color:var(--bg);border:0;border-radius:8px;padding:10px 16px;max-width:90vw}
+#toast.e{background:var(--err);color:#fff}
+</style>
+</head>
+<body>
+<header>
+  <h1>Central de Chamados</h1>
+  <nav id="nav"></nav>
+</header>
+<main id="main"></main>
+<dialog id="dlg"></dialog>
+<dialog id="frm"></dialog>
+<div id="toast" popover="manual" role="status"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ST = {ABERTO:'Aberto', EM_ATENDIMENTO:'Em atendimento', AGUARDANDO_CLIENTE:'Aguardando cliente', FECHADO:'Fechado'};
+const PR = {BAIXA:'Baixa', MEDIA:'Média', ALTA:'Alta', CRITICA:'Crítica'};
+const S = {cli:[], tec:[], cat:[], cham:[]};
+const ENT = {
+  clientes:   {label:'Clientes',   one:'cliente',   path:'/clientes',   key:'cli', fields:[['nome','Nome','text',1],['email','E-mail','email',1],['telefone','Telefone','text',0]]},
+  tecnicos:   {label:'Técnicos',   one:'técnico',   path:'/tecnicos',   key:'tec', fields:[['nome','Nome','text',1],['email','E-mail','email',1],['perfil','Perfil','select',0,[['ADMIN','Administrador'],['TECNICO','Técnico']]]]},
+  categorias: {label:'Categorias', one:'categoria', path:'/categorias', key:'cat', fields:[['nome','Nome','text',1],['descricao','Descrição','textarea',1]]}
+};
+let view = 'chamados', filt = {q:'', p:'', c:''};
+const by = (l, id) => l.find(x => x.id === id);
+const fmt = d => d ? new Date(d).toLocaleString('pt-BR', {dateStyle:'short', timeStyle:'short'}) : '—';
+
+async function api(path, opt = {}) {
+  const r = await fetch(path, {...opt, headers:{'Content-Type':'application/json'}, body: opt.body && JSON.stringify(opt.body)});
+  if (r.status === 204) return null;
+  const d = await r.json().catch(() => null);
+  if (!r.ok) {
+    let m = d?.erro || d?.message;
+    if (d?.detalhes?.length) m += ': ' + d.detalhes.join('; ');
+    if (r.status === 500) m = 'O servidor não conseguiu concluir a operação. Se estiver excluindo, verifique se o registro está vinculado a chamados ou comentários.';
+    throw new Error(m || 'Erro ' + r.status);
+  }
+  return d;
+}
+
+let tt;
+function toast(m, err) {
+  const t = $('#toast');
+  try { t.hidePopover(); } catch {}
+  t.textContent = m; t.className = err ? 'e' : '';
+  t.showPopover(); clearTimeout(tt); tt = setTimeout(() => { try { t.hidePopover(); } catch {} }, 5000);
+}
+
+async function load() {
+  try { [S.cli, S.tec, S.cat, S.cham] = await Promise.all(['/clientes','/tecnicos','/categorias','/chamados'].map(p => api(p))); }
+  catch (e) { toast('Não foi possível carregar os dados. O servidor está em execução? ' + e.message, 1); }
+  render();
+}
+
+function render() {
+  $('#nav').innerHTML = [['chamados','Chamados'], ...Object.entries(ENT).map(([k, e]) => [k, e.label])]
+    .map(([k, l]) => `<button data-act="nav" data-k="${k}" ${k === view ? 'aria-current="page"' : ''}>${l}</button>`).join('');
+  if (view === 'chamados') {
+    $('#main').innerHTML = `<div class="bar">
+      <h2>Chamados</h2>
+      <input class="grow" id="fq" type="search" placeholder="Buscar por título ou descrição" value="${esc(filt.q)}" aria-label="Buscar chamados">
+      <select id="fp" aria-label="Filtrar por prioridade"><option value="">Todas as prioridades</option>${Object.entries(PR).map(([k, v]) => `<option value="${k}" ${filt.p === k ? 'selected' : ''}>${v}</option>`).join('')}</select>
+      <select id="fc" aria-label="Filtrar por cliente"><option value="">Todos os clientes</option>${S.cli.map(c => `<option value="${c.id}" ${filt.c == c.id ? 'selected' : ''}>${esc(c.nome)}</option>`).join('')}</select>
+      <button class="pri" data-act="new" data-k="chamado">Novo chamado</button></div><div class="board" id="board"></div>`;
+    $('#fq').oninput = e => { filt.q = e.target.value; board(); };
+    $('#fp').onchange = e => { filt.p = e.target.value; board(); };
+    $('#fc').onchange = e => { filt.c = e.target.value; board(); };
+    board();
+  } else {
+    const E = ENT[view], l = S[E.key], cols = E.fields.map(f => f[0]);
+    $('#main').innerHTML = `<div class="bar"><h2>${E.label}</h2><button class="pri" data-act="new" data-k="${view}">Novo ${E.one}</button></div>
+      <div class="tbl"><table><thead><tr>${E.fields.map(f => `<th>${f[1]}</th>`).join('')}<th></th></tr></thead><tbody>
+      ${l.map(r => `<tr>${cols.map(c => `<td>${esc(r[c])}</td>`).join('')}<td class="act">
+        <button class="ghost sm" data-act="edit" data-id="${r.id}">Editar</button><button class="ghost sm danger" data-act="del" data-id="${r.id}">Excluir</button></td></tr>`).join('')
+        || `<tr><td colspan="${cols.length + 1}" class="empty">Nenhum ${E.one} cadastrado. Use “Novo ${E.one}” para começar.</td></tr>`}
+      </tbody></table></div>`;
+  }
+}
+
+function board() {
+  const q = filt.q.toLowerCase();
+  const l = S.cham.filter(c => (!filt.p || c.prioridade === filt.p) && (!filt.c || c.cliente == filt.c) && (!q || (c.titulo + ' ' + c.descricao).toLowerCase().includes(q)));
+  $('#board').innerHTML = Object.entries(ST).map(([k, v]) => {
+    const items = l.filter(c => c.statusChamado === k);
+    return `<section class="col"><h3>${v}<span>${items.length}</span></h3>${items.map(card).join('') || '<p class="empty">Nenhum chamado</p>'}</section>`;
+  }).join('');
+}
+
+function card(c) {
+  const cli = by(S.cli, c.cliente), tec = by(S.tec, c.tecnico);
+  return `<button class="card" style="--pc:var(--p-${c.prioridade})" data-act="open" data-id="${c.id}">
+    <b>#${c.id} ${esc(c.titulo)}</b><span class="tag">${PR[c.prioridade] || '—'}</span><span class="meta">${esc(cli?.nome)}</span>
+    <div class="meta">${tec ? 'Técnico: ' + esc(tec.nome) : 'Sem técnico'} · ${fmt(c.dataAbertura)}</div></button>`;
+}
+
+/* ---------- formulários ---------- */
+function form(title, fields, v, save) {
+  const d = $('#frm');
+  d.innerHTML = `<form method="dialog"><h2>${title}</h2>${fields.map(([n, l, t, r, o]) => `<label>${l}${r ? '' : ' <i>(opcional)</i>'}${
+    t === 'select' ? `<select name="${n}" ${r ? 'required' : ''}>${r ? '' : '<option value="">—</option>'}${o.map(([a, b]) => `<option value="${a}" ${String(v[n] ?? '') === String(a) ? 'selected' : ''}>${esc(b)}</option>`).join('')}</select>`
+    : t === 'textarea' ? `<textarea name="${n}" rows="4" ${r ? 'required' : ''}>${esc(v[n])}</textarea>`
+    : `<input name="${n}" type="${t}" value="${esc(v[n])}" ${r ? 'required' : ''}>`}</label>`).join('')}
+    <p class="err" hidden></p><div class="row"><button value="cancel" class="ghost" formnovalidate>Cancelar</button><button class="pri">Salvar</button></div></form>`;
+  d.querySelector('form').onsubmit = async e => {
+    e.preventDefault();
+    const o = Object.fromEntries(new FormData(e.target));
+    for (const k in o) if (o[k] === '') o[k] = null;
+    try { await save(o); d.close(); toast('Salvo'); await load(); if ($('#dlg').open) detail(openId); }
+    catch (x) { const p = d.querySelector('.err'); p.textContent = x.message; p.hidden = false; }
+  };
+  d.showModal();
+}
+
+function chamadoForm(c) {
+  if (!S.cli.length || !S.cat.length) return toast('Cadastre ao menos um cliente e uma categoria antes de abrir um chamado.', 1);
+  form(c ? 'Editar chamado #' + c.id : 'Novo chamado', [
+    ['titulo','Título','text',1], ['descricao','Descrição','textarea',1],
+    ['cliente','Cliente','select',1,S.cli.map(x => [x.id, x.nome])],
+    ['categoria','Categoria','select',1,S.cat.map(x => [x.id, x.nome])],
+    ['prioridade','Prioridade','select',1,Object.entries(PR)],
+    ['tecnico','Técnico responsável','select',0,S.tec.map(x => [x.id, x.nome])]
+  ], c ? {...c} : {prioridade:'MEDIA'}, async o => {
+    const b = {titulo:o.titulo, descricao:o.descricao, cliente:+o.cliente, categoria:+o.categoria, prioridade:o.prioridade};
+    const tec = o.tecnico ? +o.tecnico : null;
+    const r = c ? await api('/chamados/' + c.id, {method:'PUT', body:b}) : await api('/chamados', {method:'POST', body:b});
+    // a API cria todo chamado com prioridade MÉDIA e sem técnico; ajustamos em seguida
+    if (!c && o.prioridade !== 'MEDIA') await api('/chamados/' + r.id, {method:'PUT', body:b});
+    if (tec !== (c ? c.tecnico : null)) await api('/chamados/' + r.id + '/atribuir', {method:'PATCH', body:{tecnico:tec}});
+  });
+}
+
+/* ---------- detalhe do chamado ---------- */
+let openId = null;
+async function detail(id) {
+  const c = by(S.cham, id), d = $('#dlg');
+  if (!c) return d.close();
+  openId = id; d.className = 'side';
+  let com = [];
+  try { com = (await api(`/chamados/${id}/comentarios`)).filter(x => x.chamado === id).sort((a, b) => String(a.data).localeCompare(String(b.data))); } catch {}
+  const cli = by(S.cli, c.cliente), cat = by(S.cat, c.categoria), closed = c.statusChamado === 'FECHADO';
+  d.innerHTML = `<div>
+    <div class="row" style="justify-content:space-between"><h2>#${c.id} ${esc(c.titulo)}</h2><button class="ghost sm" data-act="close" aria-label="Fechar painel">Fechar</button></div>
+    <span class="tag" style="--pc:var(--p-${c.prioridade})">${PR[c.prioridade] || '—'}</span><span class="meta">${ST[c.statusChamado] || ''}</span>
+    <dl><dt>Cliente</dt><dd>${esc(cli?.nome)}</dd><dt>Categoria</dt><dd>${esc(cat?.nome)}</dd><dt>Aberto em</dt><dd>${fmt(c.dataAbertura)}</dd><dt>Fechado em</dt><dd>${fmt(c.dataFechamento)}</dd></dl>
+    <div class="desc">${esc(c.descricao)}</div>
+    <div class="ctl">
+      <label>Status<select id="st" ${closed ? 'disabled' : ''}>${Object.entries(ST).map(([k, v]) => `<option value="${k}" ${k === c.statusChamado ? 'selected' : ''}>${v}</option>`).join('')}</select></label>
+      <label>Técnico<select id="tc" ${closed ? 'disabled' : ''}><option value="">Sem técnico</option>${S.tec.map(t => `<option value="${t.id}" ${t.id === c.tecnico ? 'selected' : ''}>${esc(t.nome)}</option>`).join('')}</select></label>
+    </div>
+    ${closed ? '<p class="meta">Chamados fechados não podem ser alterados.</p>' : ''}
+    <p class="err" id="derr" hidden></p>
+    <div class="row" style="justify-content:flex-start"><button class="ghost" data-act="edit-ch" ${closed ? 'disabled' : ''}>Editar</button><button class="ghost danger" data-act="del-ch">Excluir chamado</button></div>
+    <h3 class="sec">Comentários (${com.length})</h3>
+    <ul class="com">${com.map(x => `<li><b>${esc(by(S.cli, x.autor)?.nome)}</b> <span class="meta">${fmt(x.data)}</span><p>${esc(x.texto)}</p></li>`).join('') || '<li class="empty">Nenhum comentário ainda.</li>'}</ul>
+    <form id="cf" style="margin-top:12px">
+      <label>Autor<select name="autor" required>${S.cli.map(x => `<option value="${x.id}" ${x.id === c.cliente ? 'selected' : ''}>${esc(x.nome)}</option>`).join('')}</select></label>
+      <label>Novo comentário<textarea name="texto" rows="3" required maxlength="2048"></textarea></label>
+      <div class="row"><button class="pri">Comentar</button></div></form></div>`;
+  const run = async fn => {
+    try { await fn(); await load(); detail(id); }
+    catch (e) { const p = $('#derr'); p.textContent = e.message; p.hidden = false; }
+  };
+  $('#st').onchange = e => run(() => api(`/chamados/${id}/status`, {method:'PATCH', body:{status:e.target.value}}));
+  $('#tc').onchange = e => run(() => api(`/chamados/${id}/atribuir`, {method:'PATCH', body:{tecnico:e.target.value ? +e.target.value : null}}));
+  $('#cf').onsubmit = e => { e.preventDefault(); const f = new FormData(e.target);
+    run(() => api(`/chamados/comentarios`, {method:'POST', body:{texto:f.get('texto'), autor:+f.get('autor'), chamado:id}})); };
+  if (!d.open) d.showModal();
+}
+
+/* ---------- eventos ---------- */
+document.addEventListener('click', async e => {
+  const t = e.target.closest('[data-act]');
+  if (!t) return;
+  const {act, k} = t.dataset, id = +t.dataset.id;
+  if (act === 'nav') { view = k; render(); }
+  else if (act === 'open') detail(id);
+  else if (act === 'close') $('#dlg').close();
+  else if (act === 'new') {
+    if (k === 'chamado') chamadoForm();
+    else { const E = ENT[k]; form('Novo ' + E.one, E.fields, {}, o => api(E.path, {method:'POST', body:o})); }
+  }
+  else if (act === 'edit') {
+    const E = ENT[view], r = by(S[E.key], id);
+    form('Editar ' + E.one, E.fields, r, o => api(E.path + '/' + id, {method:'PUT', body:o}));
+  }
+  else if (act === 'del') {
+    const E = ENT[view];
+    if (!confirm('Excluir este ' + E.one + '?')) return;
+    try { await api(E.path + '/' + id, {method:'DELETE'}); toast('Excluído'); await load(); } catch (x) { toast(x.message, 1); }
+  }
+  else if (act === 'edit-ch') chamadoForm(by(S.cham, openId));
+  else if (act === 'del-ch') {
+    if (!confirm('Excluir o chamado #' + openId + '?')) return;
+    try { await api('/chamados/' + openId, {method:'DELETE'}); $('#dlg').close(); toast('Excluído'); await load(); }
+    catch (x) { const p = $('#derr'); p.textContent = x.message; p.hidden = false; }
+  }
+});
+load();
+</script>
+</body>
+</html>
